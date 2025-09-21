@@ -304,6 +304,21 @@ def analyze_url():
     ctx = {"source":"html", "restaurant_name": urlparse.urlparse(url).netloc, **params}
     return jsonify({"context": ctx, "restaurants":[{"name":ctx["restaurant_name"], "picks": ranked["picks"]}], **ranked})
 
+
+@app.get("/analyze-url-test")
+def analyze_url_test():
+    url = request.args.get("url", "").strip()
+    calorie_target = int(request.args.get("calorie_target", 600))
+    flags = [f for f in (request.args.get("flags","") or "").split(",") if f]
+    params = {"calorie_target": calorie_target, "flags": flags, "prioritize_protein": True}
+    if not is_safe_url(url):
+        return jsonify({"error":"Invalid or unsupported URL"}), 400
+    if not allowed_by_robots(url):
+        return jsonify({"error":"Blocked by robots.txt. Download the PDF and upload it instead."}), 403
+    items = fetch_and_extract_menu(url)
+    ranked = rank_items(items, params)
+    ctx = {"source":"url", "restaurant_name": None, "zip": None, "radius_miles": None, "calorie_target": calorie_target, "flags": flags}
+    return jsonify({"context": ctx, "restaurants":[{"name":"Menu","distance_mi":None,"cuisine":[], "website":url, "source":"menu","picks": ranked.get("picks",[])[:3]}]})
 @app.post("/analyze-pdf")
 def analyze_pdf():
     if "pdf" not in request.files:

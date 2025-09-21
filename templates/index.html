@@ -60,11 +60,11 @@
           <h2 id="zip-title" class="title">Step 1: Find healthy choices by ZIP</h2>
         </div>
         <p class="help">Enter your ZIP and radius, then press <strong>Search</strong>. We use OpenStreetMap to find nearby restaurants. Tap a result’s website to grab its menu URL for Step 2.</p>
-        <form id="zipForm" class="grid gap-3 mt-2">
+        <form id="zipForm" class="grid gap-3 mt-2" action="/nearby-by-zip-test" method="GET">
           <label class="label" for="zip">ZIP code</label>
           <div class="grid grid-cols-3 gap-2">
-            <input id="zip" required maxlength="5" pattern="\d{5}" class="input col-span-2" placeholder="e.g., 80202" aria-required="true">
-            <input id="radius" type="number" min="1" max="10" value="3" class="input" placeholder="mi" aria-label="Radius in miles">
+            <input name="zip" id="zip" required maxlength="5" pattern="\d{5}" class="input col-span-2" placeholder="e.g., 80202" aria-required="true">
+            <input name="radius_miles" id="radius" type="number" min="1" max="10" value="3" class="input" placeholder="mi" aria-label="Radius in miles">
           </div>
           <div class="flex items-center gap-3 text-sm">
             <label class="flex items-center gap-2"><input type="checkbox" id="onlyChains" class="accent-indigo-600"> Only show chains</label>
@@ -96,9 +96,9 @@
         </div>
         <p class="help">Copy a menu URL from a result on the left, paste it below, and click <strong>Analyze URL</strong>. Or upload a PDF and click <strong>Analyze PDF</strong>. Your targets carry over from Step 1.</p>
 
-        <form id="analyzeUrlForm" class="grid gap-2 mt-2" aria-label="Analyze a menu URL">
+        <form id="analyzeUrlForm" class="grid gap-2 mt-2" aria-label="Analyze a menu URL" action="/analyze-url-test" method="GET">
           <label class="label" for="menuUrl">Menu URL</label>
-          <input id="menuUrl" class="input" placeholder="https://example-restaurant.com/menu" inputmode="url">
+          <input name="url" id="menuUrl" class="input" placeholder="https://example-restaurant.com/menu" inputmode="url">
           <div class="flex flex-wrap items-center gap-3 text-sm">
             <label class="flag"><input type="checkbox" id="prioritizeProteinURL" checked> Prioritize protein</label>
             <label class="flag"><input type="checkbox" id="lowCarbURL"> Low-carb</label>
