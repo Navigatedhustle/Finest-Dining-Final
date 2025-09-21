@@ -1,177 +1,101 @@
-<!doctype html>
-<html lang="en" class="scroll-smooth">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Fine Dining Coach – Free Menu Analyzer</title>
-  <meta name="color-scheme" content="dark light">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/styles.css?v=20250921-7">
+  <link rel="stylesheet" href="/static/styles.css?v=20250921-8"/>
 </head>
-<body class="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-  <div class="max-w-6xl mx-auto p-4 md:p-6">
-    <!-- Header -->
-    <header class="flex items-center gap-3 justify-between mb-6 sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-zinc-50/70 dark:supports-[backdrop-filter]:bg-zinc-900/60 rounded-2xl px-3 py-2 border border-zinc-200 dark:border-zinc-800">
-      <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-500 shadow-lg grid place-items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 text-white"><path fill="currentColor" d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2m1 14H8l5-9v5h3z"/></svg>
-        </div>
-        <div>
-          <h1 class="text-xl md:text-2xl font-bold tracking-tight">Fine Dining Coach</h1>
-          <p class="text-xs md:text-sm text-zinc-600 dark:text-zinc-300">Free Menu Analyzer • Deterministic rules • No paid APIs</p>
-        </div>
+<body class="theme">
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Fine Dining Coach</h1>
+        <p class="subtitle">Free Menu Analyzer · Deterministic rules · No paid APIs</p>
       </div>
-      <div class="flex items-center gap-2">
-        <button id="darkToggle" class="btn-ghost text-xs" aria-label="Toggle theme">Theme</button>
-        <a href="https://nominatim.openstreetmap.org" target="_blank" class="badge-soft">Nominatim</a>
-        <a href="https://overpass-api.de/" target="_blank" class="badge-soft">Overpass</a>
-        <a href="https://world.openfoodfacts.org/" target="_blank" class="badge-soft">Open Food Facts</a>
+      <div class="status-ribbon">
+        <span id="statusDot" class="dot dot-warn"></span>
+        <span id="statusText">Initializing…</span>
+        <button id="testNetworkBtn" class="btn-ghost ml8">Test network</button>
       </div>
-    </header>
-    <div id="statusRibbon" class="mt-2 text-xs px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-      <span id="statusDot" style="display:inline-block;width:10px;height:10px;border-radius:9999px;background:#ef4444;margin-right:6px;"></span>
-      <span id="statusText">Initializing…</span>
-      <button id="testNetworkBtn" class="btn-ghost text-xs ml-2">Test network</button>
     </div>
-    <details id="netPanel" class="mt-2 surface-card">
-      <summary class="text-sm font-semibold cursor-pointer">Network Console (last 5 requests)</summary>
-      <div class="text-xs opacity-70 mb-2">Shows method, URL (trimmed), status, and time.</div>
-      <div id="netList" class="grid gap-1"></div>
-      <button id="netClearBtn" class="btn-ghost text-xs mt-2">Clear</button>
-    </details>
-
-    <div id="statusRibbon" class="mt-2 text-xs px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-      <span id="statusDot" style="display:inline-block;width:10px;height:10px;border-radius:9999px;background:#ef4444;margin-right:6px;"></span>
-      <span id="statusText">Initializing…</span>
-      <button id="testNetworkBtn" class="btn-ghost text-xs ml-2">Test network</button>
-    </div>
-
-
-    <!-- Stepper -->
-    <nav class="mb-6 grid sm:grid-cols-3 gap-2 text-sm">
-      <div class="step active">
-        <span class="step-num">1</span><span class="font-semibold">Find by ZIP</span><span class="step-help">Search restaurants near you</span>
-      </div>
-      <div class="step">
-        <span class="step-num">2</span><span class="font-semibold">Analyze Menus</span><span class="step-help">Paste URL or upload PDF</span>
-      </div>
-      <div class="step">
-        <span class="step-num">3</span><span class="font-semibold">Pick + Ask</span><span class="step-help">Copy the server script or scan QR</span>
-      </div>
+    <nav class="hero-nav">
+      <span class="nav-pill on">Nominatim</span>
+      <span class="nav-pill on">Overpass</span>
+      <span class="nav-pill on">Open Food Facts</span>
     </nav>
+  </header>
 
-    <!-- Two main cards -->
-    <main class="grid lg:grid-cols-2 gap-6">
-      <!-- ZIP search -->
-      <section class="surface-card" aria-labelledby="zip-title">
-        <div class="section-head">
-          <div class="icon-wrap">
-            <svg viewBox="0 0 24 24" class="h-5 w-5"><path fill="currentColor" d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7m0 9.5A2.5 2.5 0 1 0 12 6a2.5 2.5 0 0 0 0 5.5"/></svg>
+  <main class="container">
+    <section class="cards two-col">
+      <div class="card">
+        <div class="card-header">1 · Find by ZIP <span class="muted">Search restaurants near you</span></div>
+        <form id="zipForm" class="grid2">
+          <label class="field">
+            <span class="label">ZIP code</span>
+            <input id="zipInput" name="zip" inputmode="numeric" maxlength="5" pattern="\d{5}" placeholder="e.g., 87124" class="input"/>
+          </label>
+          <label class="field">
+            <span class="label">Radius (miles)</span>
+            <input id="radiusInput" name="radius_miles" type="number" step="0.1" min="0.5" max="25" value="3" class="input"/>
+          </label>
+          <label class="check">
+            <input type="checkbox" name="only_chains" id="onlyChains"/>
+            <span>Only show chains</span>
+          </label>
+          <div></div>
+          <div class="row">
+            <button id="searchBtn" type="submit" class="btn-primary">Search</button>
           </div>
-          <h2 id="zip-title" class="title">Step 1: Find healthy choices by ZIP</h2>
-        </div>
-        <p class="help">Enter your ZIP and radius, then press <strong>Search</strong>. We use OpenStreetMap to find nearby restaurants. Tap a result’s website to grab its menu URL for Step 2.</p>
-        <form id="zipForm" class="space-y-3">
-          <label class="label" for="zip">ZIP code</label>
-          <div class="grid grid-cols-3 gap-2">
-            <input name="zip" id="zipInput" inputmode="numeric" pattern="\d{5}" maxlength="5" placeholder="e.g., 87124">
-            <input name="radius_miles" id="radiusInput" type="number" step="0.1" min="0.5" max="25" placeholder="3">
-          </div>
-          <div class="flex items-center gap-3 text-sm">
-            <label class="flex items-center gap-2"><input type="checkbox" id="onlyChains" class="accent-indigo-600"> Only show chains</label>
-            <div class="flex items-center gap-2 ml-auto">
-              <span class="preset" id="presetCut" role="button" tabindex="0">Cut 600 kcal</span>
-              <span class="preset" id="presetMaintain" role="button" tabindex="0">Maintain 750 kcal</span>
-              <span class="preset" id="presetHighP" role="button" tabindex="0">High-Protein 40–60g</span>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button class="btn-primary" type="submit">Search</button>
-            <div class="goal-wrap">
-              <label class="text-xs opacity-80" for="calTarget">Calorie Target</label>
-              <input id="calTarget" type="number" value="600" class="input w-32" aria-describedby="calHelp">
-            </div>
-            <span id="calHelp" class="help">Used for scoring across steps.</span>
+          <div class="help">
+            Enter your ZIP and press Search. We use OpenStreetMap to find nearby restaurants.
           </div>
         </form>
-        <div id="zipResults" class="mt-4 grid gap-3" aria-live="polite"></div>
-      </section>
+      </div>
 
-      <!-- Analyzer -->
-      <section class="surface-card" aria-labelledby="analyze-title">
-        <div class="section-head">
-          <div class="icon-wrap bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
-            <svg viewBox="0 0 24 24" class="h-5 w-5"><path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h10v2H3z"/></svg>
+      <div class="card">
+        <div class="card-header">2 · Analyze Menus <span class="muted">Paste URL or upload PDF</span></div>
+        <form id="urlForm" class="grid1">
+          <label class="field">
+            <span class="label">Menu URL</span>
+            <input id="menuUrl" name="menu_url" type="url" placeholder="https://example-restaurant.com/menu" class="input"/>
+          </label>
+          <div class="row">
+            <button id="analyzeUrlBtn" type="submit" class="btn-primary">Analyze URL</button>
           </div>
-          <h2 id="analyze-title" class="title">Step 2: Paste menu URLs or upload PDFs</h2>
-        </div>
-        <p class="help">Copy a menu URL from a result on the left, paste it below, and click <strong><button id="analyzeUrlBtn" type="button" class="btn-primary">Analyze URL</button></strong>. Or upload a PDF and click <strong>Analyze PDF</strong>. Your targets carry over from Step 1.</p>
-
-        <form id="analyzeUrlForm" class="grid gap-2 mt-2" aria-label="Analyze a menu URL" action="/analyze-url-test" method="GET">
-          <label class="label" for="menuUrl">Menu URL</label>
-          <input name="url" id="menuUrl" class="input" placeholder="https://example-restaurant.com/menu" inputmode="url">
-          <div class="flex flex-wrap items-center gap-3 text-sm">
-            <label class="flag"><input type="checkbox" id="prioritizeProteinURL" checked> Prioritize protein</label>
-            <label class="flag"><input type="checkbox" id="lowCarbURL"> Low-carb</label>
-            <label class="flag"><input type="checkbox" id="noFriedURL"> No fried</label>
-            <button class="btn-ghost ml-auto" type="submit"><button id="analyzeUrlBtn" type="button" class="btn-primary">Analyze URL</button></button>
-          </div>
+          <div class="help">Copy a menu link, paste above, then click Analyze URL.</div>
         </form>
-
-        <div class="divider"></div>
-
-        <form id="pdfForm" enctype="multipart/form-data" class="grid gap-2" aria-label="Analyze a menu PDF">
-          <label class="label" for="pdfFile">PDF menu</label>
-          <div class="flex items-center gap-3">
-            <input id="pdfFile" type="file" accept="application/pdf" class="input">
-            <label class="flag"><input type="checkbox" id="enableOCR"> Enable OCR (needs Tesseract)</label>
-            <button class="btn-ghost ml-auto" type="submit">Analyze PDF</button>
+        <hr class="sep"/>
+        <div class="prefs">
+          <div class="pref">
+            <span class="label">Calorie Target</span>
+            <input type="number" name="calorie_target" id="calTarget" value="600" min="300" max="1200" step="10" class="input small"/>
           </div>
-        </form>
-
-        <div class="divider"></div>
-
-        <div>
-          <label class="text-sm font-semibold" for="offQuery">Open Food Facts (optional)</label>
-          <div class="flex gap-2 mt-1">
-            <input id="offQuery" class="input" placeholder="e.g., keto tortilla">
-            <button id="offBtn" class="btn-secondary" type="button">Search</button>
-          </div>
-          <div id="offResults" class="mt-3 grid sm:grid-cols-2 gap-2"></div>
+          <label class="check"><input type="checkbox" name="prioritize_protein" id="prioProtein" checked/><span>Prioritize protein</span></label>
+          <label class="check"><input type="checkbox" name="flags" value="low_carb"/><span>Low-carb</span></label>
+          <label class="check"><input type="checkbox" name="flags" value="no_fried"/><span>No fried</span></label>
         </div>
-      </section>
-    
-      <section id="results" class="mt-6 grid gap-4"></section>
-    </main>
-
-    <!-- How it works -->
-    <section class="mt-6 surface-card">
-      <h3 class="text-lg font-semibold">How to use</h3>
-      <ol class="text-sm mt-2 list-decimal ml-5 space-y-1">
-        <li>Enter your <strong>ZIP</strong> and press <strong>Search</strong>. Click a restaurant’s <em>Website</em> to open its menu.</li>
-        <li>Copy the menu URL and paste it into <strong>Menu URL</strong>, then click <strong><button id="analyzeUrlBtn" type="button" class="btn-primary">Analyze URL</button></strong>. Or upload a <strong>PDF</strong> and click <strong>Analyze PDF</strong>.</li>
-        <li>Review the top picks, copy the <em>server ask</em>, or scan the QR at the table.</li>
-      </ol>
-      <details class="mt-3">
-        <summary class="cursor-pointer text-sm underline decoration-dotted">Embed (responsive)</summary>
-        <pre class="code mt-2">
-&lt;iframe src="YOUR_RENDER_URL" width="100%" style="border:0" id="fdc-iframe"&gt;&lt;/iframe&gt;
-&lt;script&gt;
-window.addEventListener("message", (e)=>{
-  if(e.data && e.data.type==="fdc-resize"){
-    document.getElementById("fdc-iframe").style.height = e.data.height+"px";
-  }
-});
-&lt;/script&gt;</pre>
+      </div>
     </section>
 
-    <footer class="mt-6 text-xs text-zinc-600 dark:text-zinc-400">
-      © OpenStreetMap contributors. Geocoding by <a class="underline" href="https://nominatim.openstreetmap.org" target="_blank">Nominatim</a>. Data via <a class="underline" href="https://overpass-api.de/" target="_blank">Overpass API</a>. Packaged items from <a class="underline" href="https://world.openfoodfacts.org/" target="_blank">Open Food Facts</a>.
-    </footer>
-  </div>
+    <section id="results" class="results"></section>
 
-  <script src="/static/boot.js?v=20250921-7" defer></script>
-    <script src="/static/app.js?v=20250921-7" defer></script>
+    <section class="panel">
+      <div class="panel-title">How to use</div>
+      <ol class="steps">
+        <li>Enter your ZIP and press <strong>Search</strong>.</li>
+        <li>Open a result’s website, copy the menu URL, paste it, then click <strong>Analyze URL</strong>.</li>
+        <li>Copy the one-line server ask from your favorite pick and order with confidence.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    © OpenStreetMap contributors. Geocoding by <a href="https://nominatim.openstreetmap.org" target="_blank" rel="noopener">Nominatim</a>.
+    Data via <a href="https://overpass-api.de" target="_blank" rel="noopener">Overpass API</a>. Packaged items from
+    <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>.
+  </footer>
+
+  <script src="/static/app.js?v=20250921-8" defer></script>
 </body>
 </html>
