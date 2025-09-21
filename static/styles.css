@@ -1,42 +1,35 @@
-/* Utility tokens */
-:root{
-  --ring: 0 0% 100%;
-}
-/* Buttons */
-.btn-primary{ @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-500/20 hover:bg-indigo-400 transition; }
-.btn-secondary{ @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition; }
-.btn-ghost{ @apply inline-flex items-center gap-2 px-3 py-2 rounded-2xl border border-zinc-700 text-zinc-200 text-sm hover:bg-zinc-800 transition; }
+/* High-contrast, accessible theme */
+.btn-primary{ @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-600 text-white text-sm font-semibold shadow hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400; }
+.btn-secondary{ @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-600 text-white text-sm font-semibold shadow hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400; }
+.btn-ghost{ @apply inline-flex items-center gap-2 px-3 py-2 rounded-2xl border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400; }
 
-/* Inputs & pills */
-.input{ @apply border border-zinc-800 rounded-2xl px-3 py-2 w-full bg-zinc-900/70 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40; }
-.preset{ @apply inline-flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-800 text-zinc-100 text-xs hover:bg-zinc-700 cursor-pointer; }
-.flag{ @apply inline-flex items-center gap-2 text-sm text-zinc-300; }
-.badge-soft{ @apply inline-flex items-center px-2 py-0.5 rounded-full border border-zinc-700 text-xs text-zinc-300; }
-.chip{ @apply inline-flex items-center px-2.5 py-1 rounded-full bg-zinc-800 text-xs text-zinc-200 border border-zinc-700; }
+.input{ @apply border border-zinc-300 dark:border-zinc-700 rounded-2xl px-3 py-2 w-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-400; }
+select.input{ @apply appearance-none bg-no-repeat pr-9; background-image: linear-gradient(45deg,transparent 50%,currentColor 50%), linear-gradient(135deg,currentColor 50%,transparent 50%), linear-gradient(to right,transparent,transparent); background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 13px) calc(50% - 3px), calc(100% - 2.2em) 0.5em; background-size: 5px 5px,5px 5px,1px 1.5em; }
+.preset{ @apply inline-flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs hover:bg-zinc-300 dark:hover:bg-zinc-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400; }
+.flag{ @apply inline-flex items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200; }
+.badge-soft{ @apply inline-flex items-center px-2 py-0.5 rounded-full border border-zinc-300 dark:border-zinc-700 text-xs text-zinc-700 dark:text-zinc-200; }
+.chip{ @apply inline-flex items-center px-2.5 py-1 rounded-full bg-zinc-200 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700; }
+.label{ @apply text-sm font-semibold text-zinc-800 dark:text-zinc-100; }
+.help{ @apply text-sm text-zinc-600 dark:text-zinc-300; }
 
-/* Surfaces */
-.surface-card{ @apply rounded-3xl border border-zinc-800/60 bg-zinc-900/60 backdrop-blur-xl p-4 md:p-5; }
-.panel{ @apply rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4; }
-.hover-lift{ transform: translateY(0); transition: transform .18s ease, box-shadow .18s ease; }
-.hover-lift:hover{ transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.surface-card{ @apply rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 md:p-5; }
+.section-head{ @apply flex items-center gap-3 mb-2; }
+.icon-wrap{ @apply h-9 w-9 grid place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:text-indigo-300; }
+.title{ @apply text-lg font-bold text-zinc-900 dark:text-zinc-100; }
+.goal-wrap{ @apply flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2 py-1 rounded-xl; }
+.divider{ @apply my-4 border-t border-zinc-200 dark:border-zinc-800; }
 
-/* Head */
-.section-head{ @apply flex items-center gap-3 mb-3; }
-.icon-wrap{ @apply h-9 w-9 grid place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300; }
-.title{ @apply text-lg font-semibold; }
-.goal-wrap{ @apply flex items-center gap-2 bg-zinc-900/60 border border-zinc-800 px-2 py-1 rounded-xl; }
+.card{ @apply p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800; }
+.badge{ @apply px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100; }
+.code{ @apply font-mono text-xs whitespace-pre-wrap break-words text-zinc-800 dark:text-zinc-100; }
 
-/* Divider */
-.divider{ @apply my-4 border-t border-zinc-800; }
+/* Stepper */
+.step{ @apply flex items-center gap-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-3 py-2; }
+.step-num{ @apply inline-flex items-center justify-center h-6 w-6 rounded-full bg-indigo-600 text-white text-xs font-bold; }
+.step-help{ @apply text-xs text-zinc-600 dark:text-zinc-400; }
+.step.active .step-num{ @apply bg-emerald-600; }
 
-/* Cards */
-.card{ @apply p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800; }
-.badge{ @apply px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-zinc-800 text-zinc-200; }
-.code{ @apply font-mono text-xs whitespace-pre-wrap break-words; }
-
-/* Skeleton */
-.skel{ @apply animate-pulse rounded-xl bg-zinc-800; }
-.skel-line{ @apply h-3 rounded bg-zinc-800; }
-
-/* Toast */
-.toast{ @apply fixed bottom-4 right-4 z-50 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-sm shadow-lg; }
+/* Skeleton & toast */
+.skel{ @apply animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800; }
+.skel-line{ @apply h-3 rounded bg-zinc-200 dark:bg-zinc-800; }
+.toast{ @apply fixed bottom-4 right-4 z-50 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-sm text-white shadow-lg; }
