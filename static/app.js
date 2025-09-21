@@ -72,7 +72,7 @@
     const el = document.getElementById('zipResults');
     skeletonRestaurants(el, 3);
     try{
-      const res = await fetch('/nearby-by-zip', {
+      const res = await fetch(`${ORIGIN}/nearby-by-zip`, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({zip, radius_miles: radius, only_chains: onlyChains, calorie_target: calTarget, flags, prioritize_protein: document.getElementById('prioritizeProtein').checked})
@@ -154,7 +154,7 @@
     };
     const el = document.getElementById('zipResults');
     skeletonRestaurants(el, 1);
-    const res = await fetch('/analyze-url', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({url, params})});
+    const res = await fetch(`${ORIGIN}/analyze-url`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({url, params})});
     const data = await res.json();
     if(data.error){ el.innerHTML = `<p class="text-sm">${data.error}</p>`; return; }
     // Show result using same renderer
@@ -180,7 +180,7 @@
     }));
     const el = document.getElementById('zipResults');
     skeletonRestaurants(el, 1);
-    const res = await fetch('/analyze-pdf', {method:'POST', body: fd});
+    const res = await fetch(`${ORIGIN}/analyze-pdf`, {method:'POST', body: fd});
     const data = await res.json();
     if(data.error){ el.innerHTML = `<p class="text-sm">${data.error}</p>`; return; }
     const picks = data.restaurants?.[0]?.picks || data.picks || data.alternates || [];
@@ -194,7 +194,7 @@
   document.getElementById('offBtn').addEventListener('click', async ()=>{
     const q = document.getElementById('offQuery').value.trim();
     if(!q) return;
-    const r = await fetch('/openfoodfacts?q='+encodeURIComponent(q));
+    const r = await fetch(`${ORIGIN}/openfoodfacts?q=`+encodeURIComponent(q));
     const data = await r.json();
     const el = document.getElementById('offResults');
     el.innerHTML = (data.items||[]).map(i=>`<div class="card">

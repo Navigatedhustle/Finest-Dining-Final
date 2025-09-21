@@ -230,6 +230,66 @@ def playbook_picks(r: dict, params: dict) -> list[dict]:
     default = [{"section":"Playbook","name":"Grilled chicken + veg, starch half portion","description":"Ask for sauce on side"}]
     return rank_items(default, params)["picks"]
 
+
+@app.get("/nearby-by-zip-test")
+def nearby_by_zip_test():
+    zip_code = str(request.args.get("zip","")).strip()
+    radius = float(request.args.get("radius_miles", 3))
+    only_chains = request.args.get("only_chains","0") in ("1","true","True","yes")
+    calorie_target = int(request.args.get("calorie_target", 600))
+    flags = request.args.get("flags","")
+    flags_list = [f for f in flags.split(",") if f]
+    prioritize_protein = True
+
+    if not re.match(r"^\d{5}(-\d{4})?$", zip_code):
+        return jsonify({"error":"Invalid ZIP"}), 400
+
+    ll = geocode_zip(zip_code)
+    if not ll:
+        return jsonify({"error":"ZIP not found"}), 404
+    lat, lon = ll
+
+    cache_key = f"{zip_code}:{radius}:{only_chains}"
+    restaurants = overpass_cache.get(cache_key) or overpass_restaurants(lat, lon, radius, limit=25)
+    overpass_cache.set(cache_key, restaurants)
+
+    if only_chains:
+        chains = ("chipotle","panera","mcdonald","subway","starbucks","wendy","taco bell","domino","panda","chick-fil-a")
+        restaurants = [r for r in restaurants if r["name"] and any(c in r["name"].lower() for c in chains)]
+
+    params = {"calorie_target": calorie_target, "flags": flags_list, "prioritize_protein": prioritize_protein}
+    output_restaurants = []
+    for r in restaurants:
+        website = r.get("website")
+        picks = []
+        source = "playbook"
+        if website and is_safe_url(website):
+            menu_url = resolve_menu_url(website)
+            if menu_url and allowed_by_robots(menu_url):
+                try:
+                    items = fetch_and_extract_menu(menu_url)
+                    ranked = rank_items(items, params)
+                    picks = ranked["picks"]
+                    source = "menu"
+                except Exception:
+                    picks = []
+        if not picks:
+            picks = playbook_picks(r, params)
+            source = "playbook"
+        if picks:
+            script = picks[0].get("server_script","")
+            if script:
+                picks[0]["qr_data_uri"] = make_qr(script)
+        output_restaurants.append({
+            "name": r.get("name"),
+            "distance_mi": r.get("distance_mi"),
+            "cuisine": r.get("cuisine"),
+            "website": website,
+            "source": source,
+            "picks": picks[:2]
+        })
+    ctx = {"source":"zip", "restaurant_name": None, "zip": zip_code, "radius_miles": radius, "calorie_target": calorie_target, "flags": flags_list, "prioritize_protein": True}
+    return jsonify({"context": ctx, "restaurants": output_restaurants})
 @app.post("/analyze-url")
 def analyze_url():
     data = request.get_json(force=True, silent=True) or {}
