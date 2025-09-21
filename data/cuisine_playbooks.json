@@ -1,0 +1,94 @@
+{
+  "mexican": {
+    "orders": [
+      {
+        "name": "Grilled Chicken Fajitas (no tortillas)",
+        "est_kcal": 520,
+        "est_protein_g": 45,
+        "modifiers": [
+          "extra peppers/onions",
+          "salsa instead of sour cream"
+        ]
+      },
+      {
+        "name": "Chicken Taco Bowl",
+        "est_kcal": 560,
+        "est_protein_g": 42,
+        "modifiers": [
+          "half rice",
+          "extra salsa",
+          "no queso"
+        ]
+      },
+      {
+        "name": "Shrimp Ceviche + Side Salad",
+        "est_kcal": 420,
+        "est_protein_g": 32,
+        "modifiers": [
+          "light tortilla chips"
+        ]
+      }
+    ],
+    "server_script": "Could I get the fajitas with extra peppers and onions, salsa instead of sour cream, and skip the tortillas?"
+  },
+  "american": {
+    "orders": [
+      {
+        "name": "Grilled Chicken Sandwich (open-faced)",
+        "est_kcal": 540,
+        "est_protein_g": 40,
+        "modifiers": [
+          "sauce on side",
+          "sub salad for fries"
+        ]
+      },
+      {
+        "name": "Sirloin Steak (6\u20138 oz) + Veg",
+        "est_kcal": 600,
+        "est_protein_g": 48,
+        "modifiers": [
+          "no butter finish"
+        ]
+      },
+      {
+        "name": "Turkey Chili Bowl",
+        "est_kcal": 520,
+        "est_protein_g": 38,
+        "modifiers": [
+          "no cheese topper"
+        ]
+      }
+    ],
+    "server_script": "Could you do the grilled chicken sandwich open-faced with sauce on the side, and sub a salad for fries?"
+  },
+  "italian": {
+    "orders": [
+      {
+        "name": "Grilled Chicken Marinara (no alfredo)",
+        "est_kcal": 620,
+        "est_protein_g": 44,
+        "modifiers": [
+          "half pasta",
+          "extra veg"
+        ]
+      },
+      {
+        "name": "Seafood Tomato Pasta",
+        "est_kcal": 680,
+        "est_protein_g": 40,
+        "modifiers": [
+          "light oil"
+        ]
+      },
+      {
+        "name": "Chicken Piccata + Veg",
+        "est_kcal": 590,
+        "est_protein_g": 42,
+        "modifiers": [
+          "light sauce"
+        ]
+      }
+    ],
+    "server_script": "Tomato-based sauce please, half pasta and extra vegetables."
+  }
+}

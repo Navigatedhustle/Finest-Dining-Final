@@ -1,0 +1,7 @@
+.btn{ @apply px-3 py-2 rounded-xl bg-zinc-900 text-white text-sm dark:bg-white dark:text-zinc-900;}
+.input{ @apply border rounded-xl px-3 py-2 w-full bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700;}
+.pill{ @apply inline-block px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 cursor-pointer;}
+.card{ @apply p-3 rounded-2xl bg-white dark:bg-zinc-800 shadow;}
+.badge{ @apply px-2 py-0.5 rounded-full text-xs bg-zinc-200 dark:bg-zinc-700;}
+.code{ @apply font-mono text-xs;}
+summary::-webkit-details-marker{display:none}
