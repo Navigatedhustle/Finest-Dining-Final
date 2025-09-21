@@ -14,6 +14,12 @@ from integrations.openfoodfacts import search_off
 import qrcode
 
 app = Flask(__name__)
+
+@app.route('/favicon.ico')
+def favicon():
+    from flask import send_from_directory
+    return send_from_directory('static', 'favicon.ico')
+
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 HEADERS = {"User-Agent": "FineDiningCoach-Free/1.0 (+https://example.local)"}
