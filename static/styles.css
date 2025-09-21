@@ -33,3 +33,9 @@ select.input{ @apply appearance-none bg-no-repeat pr-9; background-image: linear
 .skel{ @apply animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800; }
 .skel-line{ @apply h-3 rounded bg-zinc-200 dark:bg-zinc-800; }
 .toast{ @apply fixed bottom-4 right-4 z-50 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-sm text-white shadow-lg; }
+
+/* Enlarged primary action buttons */
+.btn-lg{ @apply text-base px-6 py-3 rounded-2xl font-bold; }
+.btn-primary{ @apply inline-flex items-center justify-center btn-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-400; }
+.btn-secondary{ @apply inline-flex items-center justify-center btn-lg bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-400; }
+.btn-ghost{ @apply inline-flex items-center justify-center btn-lg border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400; }
