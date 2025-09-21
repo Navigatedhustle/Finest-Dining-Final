@@ -368,6 +368,23 @@ def LOCAL_PROMPT_stub_for_future_refinement(text: str) -> str:
 
 
 
+
+
+@app.after_request
+def _add_csp_headers(resp):
+    # Allow our app JS/CSS and the two CDNs used in index.html
+    # If you later self-host Tailwind/Alpine, you can tighten this.
+    try:
+        resp.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "img-src 'self' data: https:; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "script-src 'self' https://cdn.tailwindcss.com https://unpkg.com; "
+            "connect-src 'self'"
+        )
+    except Exception:
+        pass
+    return resp
 @app.after_request
 def _no_cache_static(resp):
     # Prevent stale JS/CSS after deploys
