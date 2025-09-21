@@ -14,8 +14,8 @@
         var d = document.createElement('div');
         d.className = 'card';
         var u = String(entry.url||'').replace(/^https?:\/\/[^/]+/,''); 
-        if(u.length > 88) u = u.slice(0,88)+'…';
-        d.textContent = (entry.method||'GET') + ' ' + u + ' → ' + (entry.status||'ERR') + ' ('+(entry.ms||0)+'ms)';
+        if(u.length > 88) u = u.slice(0,88)+'...';
+        d.textContent = (entry.method||'GET') + ' ' + u + ' -> ' + (entry.status||'ERR') + ' ('+(entry.ms||0)+'ms)';
         netList.insertBefore(d, netList.firstChild);
         while(netList.children.length > 5){ netList.removeChild(netList.lastChild); }
       }catch(_e){}
@@ -70,7 +70,7 @@
       if(statusDot){ statusDot.style.background = ok ? '#22c55e' : '#ef4444'; }
       if(statusText){ statusText.textContent = msg; }
     }
-    if(statusDot || statusText){ setStatus(true, 'JS loaded — ready'); }
+    if(statusDot || statusText){ setStatus(true, 'JS loaded - ready'); }
 
     var testBtn = document.getElementById('testNetworkBtn');
     if(testBtn){
@@ -78,7 +78,7 @@
         fetch(ORIGIN + '/_ping').then(function(r){ return r.json(); }).then(function(j){
           setStatus(true, 'Network OK: ' + (j.message||'pong'));
         }).catch(function(){
-          setStatus(false, 'Network blocked — check proxy/CSP');
+          setStatus(false, 'Network blocked - check proxy/CSP');
         });
       });
     }
@@ -106,7 +106,7 @@
       var closeness = Math.max(0, 1 - Math.abs(kcal-target)/Math.max(target,200));
       var pct = Math.min(100, Math.round((protein/60)*100));
       return '<div class="mt-2">\
-      <div class="text-[11px] opacity-70">Target fit: ' + (closeness*100|0) + '% • Protein: ' + protein + 'g</div>\
+      <div class="text-[11px] opacity-70">Target fit: ' + (closeness*100|0) + '% * Protein: ' + protein + 'g</div>\
       <div class="h-2 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full mt-1 overflow-hidden">\
         <div class="h-full bg-gradient-to-r from-indigo-600 to-emerald-600" style="width:'+pct+'%"></div>\
       </div>\
@@ -124,12 +124,12 @@
           <div class="flex items-center gap-2">\
             <span class="badge">'+(p.confidence||'low')+'</span>\
             <span class="text-sm font-semibold">'+(p.item_name||p.name||'Item')+'</span>\
-            <span class="text-xs opacity-70 ml-auto">'+(p.est_kcal||'—')+' kcal • '+(p.est_protein_g||'—')+' g</span>\
+            <span class="text-xs opacity-70 ml-auto">'+(p.est_kcal||'-')+' kcal * '+(p.est_protein_g||'-')+' g</span>\
           </div>\
-          <div class="text-[12px] mt-1 opacity-80">'+((p.modifiers||[]).join(' • '))+'</div>\
+          <div class="text-[12px] mt-1 opacity-80">'+((p.modifiers||[]).join(' * '))+'</div>\
           '+proteinBar(p.est_kcal||0, p.est_protein_g||0, parseInt(document.getElementById('calTarget').value||'600',10))+'\
           <div class="mt-2 flex items-center gap-2">\
-            <button class="btn-ghost text-xs" onclick="navigator.clipboard.writeText(\''+String((p.server_script||'')).replace(/'/g,\"\\'\")+'\')"><span class="btn-icon">📋</span> Copy ask</button>\
+            <button class="btn-ghost text-xs" onclick="navigator.clipboard.writeText(\''+String((p.server_script||'')).replace(/'/g,\"\\'\")+'\')"><span class="btn-icon">[Copy]</span> Copy ask</button>\
             '+(p.qr_data_uri ? '<img src="'+p.qr_data_uri+'" alt="qr" class="h-10 w-10 rounded-lg border border-zinc-200 dark:border-zinc-800 ml-auto">' : '')+'\
           </div>\
         </div>';
@@ -138,7 +138,7 @@
         <div class="text-base font-semibold">'+(r.name||'')+'</div>\
         <span class="badge">'+(r.source||'')+'</span>\
         <span class="text-xs opacity-70">'+(r.distance_mi!=null?r.distance_mi+' mi':'')+'</span>\
-        '+(r.website?'<a class="btn-ghost text-xs ml-auto" href="'+r.website+'" target="_blank"><span class="btn-icon">↗</span> Website</a>':'')+'\
+        '+(r.website?'<a class="btn-ghost text-xs ml-auto" href="'+r.website+'" target="_blank"><span class="btn-icon">[Open]</span> Website</a>':'')+'\
       </div>\
       <div class="text-xs opacity-70">'+((r.cuisine||[]).join(', '))+'</div>\
       '+(picks || '<div class="text-xs mt-2">No picks yet.</div>');
@@ -239,7 +239,7 @@
             var it = items[i];
             html += '<div class="card">\
               <div class="font-semibold">'+(it.name||'Unknown')+' <span class="opacity-60">'+(it.brand||'')+'</span></div>\
-              <div class="text-xs">'+(it.energy_kcal_per_100g!=null?it.energy_kcal_per_100g:'—')+' kcal/100g • '+(it.protein_per_100g!=null?it.protein_per_100g:'—')+' g protein/100g</div>\
+              <div class="text-xs">'+(it.energy_kcal_per_100g!=null?it.energy_kcal_per_100g:'-')+' kcal/100g * '+(it.protein_per_100g!=null?it.protein_per_100g:'-')+' g protein/100g</div>\
               <div class="text-xs opacity-70 mt-1">Serving: '+(it.serving_size||'n/a')+'</div>\
             </div>';
           }
