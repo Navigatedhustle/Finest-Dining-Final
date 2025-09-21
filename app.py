@@ -289,5 +289,10 @@ def LOCAL_PROMPT_stub_for_future_refinement(text: str) -> str:
     """
     return text
 
+
+
+@app.get("/_ping")
+def ping():
+    return jsonify({"ok": True, "message": "pong"})
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), debug=False)
