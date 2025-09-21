@@ -1,7 +1,42 @@
-.btn{ @apply px-3 py-2 rounded-xl bg-zinc-900 text-white text-sm dark:bg-white dark:text-zinc-900;}
-.input{ @apply border rounded-xl px-3 py-2 w-full bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700;}
-.pill{ @apply inline-block px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-700 cursor-pointer;}
-.card{ @apply p-3 rounded-2xl bg-white dark:bg-zinc-800 shadow;}
-.badge{ @apply px-2 py-0.5 rounded-full text-xs bg-zinc-200 dark:bg-zinc-700;}
-.code{ @apply font-mono text-xs;}
-summary::-webkit-details-marker{display:none}
+/* Utility tokens */
+:root{
+  --ring: 0 0% 100%;
+}
+/* Buttons */
+.btn-primary{ @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-500/20 hover:bg-indigo-400 transition; }
+.btn-secondary{ @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition; }
+.btn-ghost{ @apply inline-flex items-center gap-2 px-3 py-2 rounded-2xl border border-zinc-700 text-zinc-200 text-sm hover:bg-zinc-800 transition; }
+
+/* Inputs & pills */
+.input{ @apply border border-zinc-800 rounded-2xl px-3 py-2 w-full bg-zinc-900/70 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40; }
+.preset{ @apply inline-flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-800 text-zinc-100 text-xs hover:bg-zinc-700 cursor-pointer; }
+.flag{ @apply inline-flex items-center gap-2 text-sm text-zinc-300; }
+.badge-soft{ @apply inline-flex items-center px-2 py-0.5 rounded-full border border-zinc-700 text-xs text-zinc-300; }
+.chip{ @apply inline-flex items-center px-2.5 py-1 rounded-full bg-zinc-800 text-xs text-zinc-200 border border-zinc-700; }
+
+/* Surfaces */
+.surface-card{ @apply rounded-3xl border border-zinc-800/60 bg-zinc-900/60 backdrop-blur-xl p-4 md:p-5; }
+.panel{ @apply rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4; }
+.hover-lift{ transform: translateY(0); transition: transform .18s ease, box-shadow .18s ease; }
+.hover-lift:hover{ transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+
+/* Head */
+.section-head{ @apply flex items-center gap-3 mb-3; }
+.icon-wrap{ @apply h-9 w-9 grid place-items-center rounded-xl border border-indigo-500/30 bg-indigo-500/15 text-indigo-300; }
+.title{ @apply text-lg font-semibold; }
+.goal-wrap{ @apply flex items-center gap-2 bg-zinc-900/60 border border-zinc-800 px-2 py-1 rounded-xl; }
+
+/* Divider */
+.divider{ @apply my-4 border-t border-zinc-800; }
+
+/* Cards */
+.card{ @apply p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800; }
+.badge{ @apply px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wide bg-zinc-800 text-zinc-200; }
+.code{ @apply font-mono text-xs whitespace-pre-wrap break-words; }
+
+/* Skeleton */
+.skel{ @apply animate-pulse rounded-xl bg-zinc-800; }
+.skel-line{ @apply h-3 rounded bg-zinc-800; }
+
+/* Toast */
+.toast{ @apply fixed bottom-4 right-4 z-50 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-sm shadow-lg; }
