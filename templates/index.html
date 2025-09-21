@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark light">
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css?v=20250921-2">
 </head>
 <body class="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
   <div class="max-w-6xl mx-auto p-4 md:p-6">
@@ -29,6 +29,18 @@
         <a href="https://world.openfoodfacts.org/" target="_blank" class="badge-soft">Open Food Facts</a>
       </div>
     </header>
+    <div id="statusRibbon" class="mt-2 text-xs px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+      <span id="statusDot" style="display:inline-block;width:10px;height:10px;border-radius:9999px;background:#ef4444;margin-right:6px;"></span>
+      <span id="statusText">Initializing…</span>
+      <button id="testNetworkBtn" class="btn-ghost text-xs ml-2">Test network</button>
+    </div>
+    <details id="netPanel" class="mt-2 surface-card">
+      <summary class="text-sm font-semibold cursor-pointer">Network Console (last 5 requests)</summary>
+      <div class="text-xs opacity-70 mb-2">Shows method, URL (trimmed), status, and time.</div>
+      <div id="netList" class="grid gap-1"></div>
+      <button id="netClearBtn" class="btn-ghost text-xs mt-2">Clear</button>
+    </details>
+
     <div id="statusRibbon" class="mt-2 text-xs px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
       <span id="statusDot" style="display:inline-block;width:10px;height:10px;border-radius:9999px;background:#ef4444;margin-right:6px;"></span>
       <span id="statusText">Initializing…</span>
@@ -157,6 +169,6 @@ window.addEventListener("message", (e)=>{
     </footer>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20250921-2" defer></script>
 </body>
 </html>

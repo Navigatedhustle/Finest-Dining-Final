@@ -5,6 +5,39 @@
     else { document.addEventListener('DOMContentLoaded', fn); }
   }
   onReady(function(){
+    // Network console
+    var netList = document.getElementById('netList');
+    var netClear = document.getElementById('netClearBtn');
+    function addNetLog(entry){
+      try{
+        if(!netList) return;
+        var d = document.createElement('div');
+        d.className = 'card';
+        var u = String(entry.url||'').replace(/^https?:\/\/[^/]+/,''); 
+        if(u.length > 88) u = u.slice(0,88)+'…';
+        d.textContent = (entry.method||'GET') + ' ' + u + ' → ' + (entry.status||'ERR') + ' ('+(entry.ms||0)+'ms)';
+        netList.insertBefore(d, netList.firstChild);
+        while(netList.children.length > 5){ netList.removeChild(netList.lastChild); }
+      }catch(_e){}
+    }
+    if(netClear){ netClear.addEventListener('click', function(){ if(netList) netList.innerHTML=''; }); }
+    if(!window.__fdcFetchPatched && window.fetch){
+      window.__fdcFetchPatched = true;
+      var _f = window.fetch;
+      window.fetch = function(input, init){
+        var method = (init && init.method) || 'GET';
+        var url = (typeof input === 'string') ? input : (input && input.url) || '';
+        var t0 = Date.now();
+        return _f(input, init).then(function(res){
+          addNetLog({method:method, url:url, status:res.status, ms: Date.now()-t0});
+          return res;
+        }).catch(function(err){
+          addNetLog({method:method, url:url, status:'ERR', ms: Date.now()-t0});
+          throw err;
+        });
+      };
+    }
+
     var ORIGIN = window.location.origin;
 
     // Theme toggle (no optional chaining)

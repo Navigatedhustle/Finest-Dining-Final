@@ -14,6 +14,7 @@ from integrations.openfoodfacts import search_off
 import qrcode
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 HEADERS = {"User-Agent": "FineDiningCoach-Free/1.0 (+https://example.local)"}
 
@@ -365,6 +366,20 @@ def LOCAL_PROMPT_stub_for_future_refinement(text: str) -> str:
     return text
 
 
+
+
+@app.after_request
+def _no_cache_static(resp):
+    # Prevent stale JS/CSS after deploys
+    try:
+        p = request.path or ''
+        if p.startswith('/static/') or p == '/':
+            resp.headers['Cache-Control'] = 'no-store, max-age=0, must-revalidate'
+            resp.headers['Pragma'] = 'no-cache'
+            resp.headers['Expires'] = '0'
+    except Exception:
+        pass
+    return resp
 
 @app.get("/_ping")
 def ping():
