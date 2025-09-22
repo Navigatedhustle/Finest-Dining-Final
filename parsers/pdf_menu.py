@@ -1,61 +1,40 @@
-from __future__ import annotations
-import io, re
-import pdfplumber
-from PIL import Image
-try:
-    import pytesseract
-except Exception:
-    pytesseract = None
+from typing import List, Dict, Any
+import io
+import re
 
-def extract_text_blocks_from_pdf(data: bytes, ocr: bool=False, max_pages: int = 20) -> str:
-    text = []
-    with pdfplumber.open(io.BytesIO(data)) as pdf:
-        for i, page in enumerate(pdf.pages[:max_pages]):
-            t = page.extract_text(x_tolerance=2) or ""
-            if t.strip():
-                text.append(t)
-    big = "\n".join(text).strip()
-    if not big and ocr and pytesseract:
-        # crude OCR: rasterize each page and run Tesseract
-        with pdfplumber.open(io.BytesIO(data)) as pdf:
-            for page in pdf.pages[:max_pages]:
-                im = page.to_image(resolution=200).original
-                if not isinstance(im, Image.Image):
-                    im = Image.fromarray(im)
-                t = pytesseract.image_to_string(im)
-                if t.strip():
-                    text.append(t)
-        big = "\n".join(text).strip()
-    return big
-
-def extract_menu_items_from_text(text: str) -> list[dict]:
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
+def extract_from_pdf_bytes(pdf_bytes: bytes, use_ocr: bool = False) -> List[Dict[str,Any]]:
     items = []
+    try:
+        import pdfplumber
+        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+            lines = []
+            for page in pdf.pages[:20]:
+                text = page.extract_text() or ""
+                for ln in text.splitlines():
+                    ln = ln.strip()
+                    if ln:
+                        lines.append(ln)
+    except Exception:
+        lines = []
+
+    if not lines and use_ocr:
+        try:
+            from PIL import Image
+            import pdf2image  # optional if available
+        except Exception:
+            pass
+
+    # Grouping: a header is ALL CAPS or Title Case short-ish line
     section = ""
     for ln in lines:
-        # header if all caps or Title Case and short
-        if (ln.isupper() or re.match(r"^([A-Z][a-z]+)(\s[A-Z][a-z]+){0,3}$", ln)) and len(ln) <= 40:
+        is_header = (ln.isupper() and len(ln) <= 40) or (re.match(r"^[A-Z][a-z]+(?: [A-Z][a-z]+){0,4}$", ln) and len(ln) <= 50)
+        if is_header:
             section = ln.title()
             continue
-        # item if contains a dash or a sentence-like pattern
-        if re.search(r"\s[-–]\s", ln) or (len(ln.split()) > 3 and ln[0].isalpha()):
-            # split name - desc
-            parts = re.split(r"\s[-–]\s", ln, maxsplit=1)
-            if len(parts)==2:
-                name, desc = parts
-            else:
-                # first sentence as name-ish
-                words = ln.split()
-                name = " ".join(words[:min(6, len(words))])
-                desc = " ".join(words[min(6, len(words)):])
-            if len(name) <= 80:
-                items.append({"section": section, "name": name, "description": desc})
-    # compact
-    uniq = []
-    seen=set()
-    for it in items:
-        k=(it["name"].lower(), it["description"].lower())
-        if k in seen: continue
-        seen.add(k)
-        uniq.append(it)
-    return uniq[:200]
+        # Treat as potential item: first sentence up to ' - ' or end
+        if len(ln) >= 6:
+            parts = ln.split(" - ", 1)
+            name = parts[0][:80]
+            desc = parts[1] if len(parts)==2 else ""
+            items.append({"section": section, "item_name": name, "description": desc})
+    return items[:200]

@@ -15,8 +15,10 @@
     try {
       const r = await fetch("/_ping", { cache: "no-store" });
       setStatus(r.ok, r.ok ? "Ready" : "Offline");
+      return r.ok;
     } catch {
       setStatus(false, "Offline");
+      return false;
     }
   }
 
@@ -32,7 +34,7 @@
     for (const r of payload.restaurants) {
       const badgeKind = r.source === "menu" ? "menu" : "playbook";
       const cuisine = (r.cuisine || []).join(", ");
-      const dist = (r.distance_mi != null) ? `${r.distance_mi.toFixed(2)} mi` : "";
+      const dist = (r.distance_mi != null) ? `${Number(r.distance_mi).toFixed(2)} mi` : "";
       const websiteBtn = r.website ? `<a class="btn-ghost" href="${r.website}" target="_blank" rel="noopener">Open website</a>` : "";
 
       let picksHtml = "";
@@ -64,7 +66,7 @@
             <div class="rest-title">${r.name || "Restaurant"}</div>
             <div class="badges">
               ${dist ? `<span class="badge">${dist}</span>` : ""}
-              ${cuisine ? `<span class="badge">${cuisine}</span>` : ""}
+              ${(cuisine && cuisine.trim()) ? `<span class="badge">${cuisine}</span>` : ""}
               <span class="badge ${badgeKind}">${r.source === "menu" ? "Parsed from Menu" : "Playbook"}</span>
             </div>
           </div>
@@ -99,6 +101,55 @@
     return flags;
   }
 
+  async function searchZip(zip, radius) {
+    const payload = {
+      zip,
+      radius_miles: parseFloat(radius || "3"),
+      calorie_target: parseInt($("calTarget").value || "600", 10),
+      prioritize_protein: $("prioProtein").checked,
+      flags: getFlags(),
+      only_chains: $("onlyChains").checked
+    };
+    // Try production POST, fallback to -test GET for older backends
+    try {
+      return await postJSON("/nearby-by-zip", payload);
+    } catch (e) {
+      const qs = new URLSearchParams({ zip, radius_miles: String(payload.radius_miles) }).toString();
+      const r = await fetch(`/nearby-by-zip-test?${qs}`, { cache: "no-store" });
+      if (!r.ok) throw e;
+      return await r.json();
+    }
+  }
+
+  async function analyzeUrl(url) {
+    const payload = {
+      url,
+      calorie_target: parseInt($("calTarget").value || "600", 10),
+      prioritize_protein: $("prioProtein").checked,
+      flags: getFlags()
+    };
+    try {
+      return await postJSON("/analyze-url", payload);
+    } catch (e) {
+      const qs = new URLSearchParams({ url }).toString();
+      const r = await fetch(`/analyze-url-test?${qs}`, { cache: "no-store" });
+      if (!r.ok) throw e;
+      return await r.json();
+    }
+  }
+
+  async function analyzePdf(file, useOcr) {
+    const fd = new FormData();
+    fd.append("menu_pdf", file);
+    fd.append("use_ocr", useOcr ? "1" : "0");
+    fd.append("calorie_target", $("calTarget").value);
+    fd.append("prioritize_protein", $("prioProtein").checked ? "1" : "0");
+    getFlags().forEach(f => fd.append("flags", f));
+    const r = await fetch("/analyze-pdf", { method: "POST", body: fd });
+    if (!r.ok) throw new Error("/analyze-pdf failed");
+    return await r.json();
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     $("testNetworkBtn").addEventListener("click", ping);
     await ping();
@@ -108,17 +159,11 @@
       $("zipInput").value = params.get("zip");
       $("radiusInput").value = params.get("radius_miles") || "3";
       try {
-        const payload = await postJSON("/nearby-by-zip", {
-          zip: $("zipInput").value,
-          radius_miles: parseFloat($("radiusInput").value || "3"),
-          calorie_target: parseInt($("calTarget").value || "600", 10),
-          prioritize_protein: $("prioProtein").checked,
-          flags: getFlags(),
-          only_chains: $("onlyChains").checked
-        });
-        renderResults(payload);
+        const data = await searchZip($("zipInput").value, $("radiusInput").value);
+        renderResults(data);
         setStatus(true, "Ready");
       } catch (e) {
+        console.error(e);
         setStatus(false, "Error");
       }
       history.replaceState({}, "", location.pathname);
@@ -127,52 +172,50 @@
     $("zipForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const zip = $("zipInput").value.trim();
-      if (!/^\\d{5}$/.test(zip)) { alert("Please enter a 5-digit ZIP."); return; }
-
-      $("searchBtn").disabled = true;
-      $("searchBtn").textContent = "Searching…";
+      if (!/^\d{5}$/.test(zip)) { alert("Please enter a 5-digit ZIP."); return; }
+      $("searchBtn").disabled = true; $("searchBtn").textContent = "Searching…";
       try {
-        const payload = await postJSON("/nearby-by-zip", {
-          zip,
-          radius_miles: parseFloat($("radiusInput").value || "3"),
-          calorie_target: parseInt($("calTarget").value || "600", 10),
-          prioritize_protein: $("prioProtein").checked,
-          flags: getFlags(),
-          only_chains: $("onlyChains").checked
-        });
-        renderResults(payload);
+        const data = await searchZip(zip, $("radiusInput").value);
+        renderResults(data);
         setStatus(true, "Ready");
       } catch (err) {
+        console.error(err);
         setStatus(false, "Error");
         alert("Search failed. See server logs.");
-      } finally {
-        $("searchBtn").disabled = false;
-        $("searchBtn").textContent = "Search";
-      }
+      } finally { $("searchBtn").disabled = false; $("searchBtn").textContent = "Search"; }
     });
 
     $("urlForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const url = $("menuUrl").value.trim();
-      if (!/^https?:\\/\\//i.test(url)) { alert("Enter a valid http(s) menu URL."); return; }
-
-      $("analyzeUrlBtn").disabled = true;
-      $("analyzeUrlBtn").textContent = "Analyzing…";
+      if (!/^https?:\/\//i.test(url)) { alert("Enter a valid http(s) menu URL."); return; }
+      $("analyzeUrlBtn").disabled = true; $("analyzeUrlBtn").textContent = "Analyzing…";
       try {
-        const payload = await postJSON("/analyze-url", {
-          url,
-          calorie_target: parseInt($("calTarget").value || "600", 10),
-          prioritize_protein: $("prioProtein").checked,
-          flags: getFlags()
-        });
-        renderResults(payload);
+        const data = await analyzeUrl(url);
+        renderResults(data);
         setStatus(true, "Ready");
       } catch (err) {
+        console.error(err);
         setStatus(false, "Error");
         alert("Analyze URL failed. Check robots.txt or try a PDF.");
+      } finally { $("analyzeUrlBtn").disabled = false; $("analyzeUrlBtn").textContent = "Analyze URL"; }
+    });
+
+    $("pdfForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = $("menuPdf").files[0];
+      if (!f) { alert("Choose a PDF first."); return; }
+      $("analyzePdfBtn")?.setAttribute("disabled","true");
+      try {
+        const data = await analyzePdf(f, $("useOcr").checked);
+        renderResults(data);
+        setStatus(true, "Ready");
+      } catch (err) {
+        console.error(err);
+        setStatus(false, "Error");
+        alert("Analyze PDF failed. Try enabling OCR or choose another file.");
       } finally {
-        $("analyzeUrlBtn").disabled = false;
-        $("analyzeUrlBtn").textContent = "Analyze URL";
+        $("analyzePdfBtn")?.removeAttribute("disabled");
       }
     });
   });

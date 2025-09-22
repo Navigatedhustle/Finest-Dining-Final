@@ -1,56 +1,27 @@
 {
-  "chipotle": {
-    "orders": [
-      {
-        "name": "Chicken Salad Bowl",
-        "est_kcal": 520,
-        "est_protein_g": 42,
-        "modifiers": [
-          "half rice",
-          "extra salsa",
-          "no queso"
-        ]
-      },
-      {
-        "name": "Steak Bowl",
-        "est_kcal": 620,
-        "est_protein_g": 45,
-        "modifiers": [
-          "half rice",
-          "fajita veggies",
-          "salsa"
-        ]
-      },
-      {
-        "name": "Lifestyle Bowl (HP)",
-        "est_kcal": 600,
-        "est_protein_g": 45,
-        "modifiers": [
-          "salsa over sour cream"
-        ]
-      }
-    ],
-    "server_script": "Half rice, extra fajita veggies, salsa as the main sauce."
-  },
-  "panera": {
-    "orders": [
-      {
-        "name": "Green Goddess Salad + Chicken",
-        "est_kcal": 480,
-        "est_protein_g": 34,
-        "modifiers": [
-          "light dressing"
-        ]
-      },
-      {
-        "name": "Turkey Chili Cup + Side Apple",
-        "est_kcal": 410,
-        "est_protein_g": 24,
-        "modifiers": [
-          "no cheese topper"
-        ]
-      }
-    ],
-    "server_script": "Light dressing please, extra chicken if available."
-  }
+  "Applebee's": [
+    {
+      "section": "Playbook",
+      "item_name": "Blackened Salmon + Broccoli",
+      "description": "Butter on side.",
+      "est_kcal": 620,
+      "est_protein_g": 36
+    },
+    {
+      "section": "Playbook",
+      "item_name": "Grilled Chicken Breast + Veg",
+      "description": "Sauce on side.",
+      "est_kcal": 560,
+      "est_protein_g": 40
+    }
+  ],
+  "Chili's": [
+    {
+      "section": "Playbook",
+      "item_name": "Guiltless Grill Chicken",
+      "description": "Salsa, extra veg.",
+      "est_kcal": 550,
+      "est_protein_g": 42
+    }
+  ]
 }

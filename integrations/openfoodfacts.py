@@ -1,30 +1,28 @@
-from __future__ import annotations
 import requests
+from typing import List, Dict, Any
 
-HEADERS = {"User-Agent": "FineDiningCoach-Free/1.0 (+https://example.local)"}
+UA = "FineDiningCoach/1.0 (contact: demo@example.com)"
 
-def search_off(query: str, page_size: int=5) -> list[dict]:
+def search_off(query: str, page_size:int=10) -> Dict[str,Any]:
     url = "https://world.openfoodfacts.org/cgi/search.pl"
-    params = {
-        "search_terms": query,
-        "search_simple": 1,
-        "json": 1,
-        "page_size": page_size,
-        "fields": "product_name,brands,nutriments,serving_size"
-    }
-    r = requests.get(url, params=params, headers=HEADERS, timeout=12)
+    params = {"search_terms": query, "search_simple": 1, "json": 1, "page_size": page_size}
+    r = requests.get(url, params=params, headers={"User-Agent": UA}, timeout=20)
     r.raise_for_status()
     data = r.json()
-    out = []
+    items = []
     for p in data.get("products", []):
-        nutr = p.get("nutriments", {}) or {}
-        kcal_100 = nutr.get("energy-kcal_100g") or nutr.get("energy-kcal_serving")
-        protein_100 = nutr.get("proteins_100g") or nutr.get("proteins_serving")
-        out.append({
-            "name": p.get("product_name"),
-            "brand": p.get("brands"),
-            "energy_kcal_per_100g": kcal_100,
-            "protein_per_100g": protein_100,
+        name = p.get("product_name") or p.get("generic_name") or ""
+        brand = p.get("brands") or ""
+        nutr = p.get("nutriments", {})
+        per100 = {"energy_kcal_100g": nutr.get("energy-kcal_100g") or nutr.get("energy-kcal_value")}
+        per_serv = {"energy_kcal_serving": nutr.get("energy-kcal_serving"),
+                    "proteins_serving": nutr.get("proteins_serving")}
+        items.append({
+            "name": name, "brand": brand,
+            "energy_kcal_100g": per100["energy_kcal_100g"],
+            "protein_100g": nutr.get("proteins_100g"),
+            "energy_kcal_serving": per_serv["energy_kcal_serving"],
+            "protein_serving": per_serv["proteins_serving"],
             "serving_size": p.get("serving_size")
         })
-    return out
+    return {"count": len(items), "items": items}

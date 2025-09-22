@@ -1,69 +1,49 @@
-# Fine Dining Coach – Free Menu Analyzer
+# Fine Dining Coach – Free Menu Analyzer (Full Project)
 
-Production-quality, **free** Flask app that parses restaurant menus (HTML/PDF) with deterministic nutrition rules and provides healthy recommendations. **No paid APIs**. Location discovery via OpenStreetMap (Nominatim + Overpass). Packaged items via **Open Food Facts**. Optional OCR via `pytesseract` if installed, behind a UI toggle.
+This is a **free**, deterministic Flask app that finds nearby restaurants by ZIP (OpenStreetMap / Overpass) and analyzes menus (HTML/PDF) to recommend healthier picks — no paid APIs, no paid LLMs.
 
-## Live stack
-- Flask (Python 3.11)
-- Requests, BeautifulSoup4, pdfplumber, Pillow
-- Optional OCR: pytesseract (requires `tesseract` binary on server)
-- OpenStreetMap: Nominatim (ZIP → lat/lon), Overpass (nearby restaurants)
-- Open Food Facts (free API)
-- Tailwind CDN, Alpine.js for minimal interactivity
-- In-memory TTL cache only (no paid cache)
+## Quick start (local)
 
-## Run locally
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-# (optional) install tesseract for OCR: sudo apt-get install tesseract-ocr
+export PORT=10000
 python app.py
 ```
 
-Open http://localhost:8000
+Open http://127.0.0.1:10000
 
-## Deploy (Render free web service)
-1. Create a new Web Service, select this repo, Build Command:
-   ```
-   pip install -r requirements.txt
-   ```
-   Start Command:
-   ```
-   python app.py
-   ```
-2. Ensure free plan idles and cold-starts are acceptable.
-3. (Optional) Install `tesseract-ocr` if OCR is needed via a start script or Docker.
-   If not available, leave the OCR toggle off.
+## Deploy to Render (free)
+
+- New > Web Service > Build from your repo
+- Start command: `python app.py`
+- Set the `PORT` env var if not provided by platform
+- Free tier note: Respect rate limits (we do simple caching).
 
 ## Endpoints
-- `GET /` – Index UI.
-- `POST /nearby-by-zip` – body: `{ zip, radius_miles, only_chains, calorie_target, flags, prioritize_protein }`.
-- `POST /analyze-url` – body: `{ url, params }`.
-- `POST /analyze-pdf` – multipart with `pdf`, `ocr` (0/1), and `params` JSON.
-- `GET /openfoodfacts?q=term`
-- `POST /rank` – body: `{ items: [...], params: {...} }`
 
-All JSON responses follow the schema described in the prompt.
+- `GET /` — UI
+- `GET /_ping` — health
+- `POST /nearby-by-zip` — JSON: `{zip, radius_miles, calorie_target, prioritize_protein, flags, only_chains}`
+- `GET /nearby-by-zip-test?zip=87124&radius_miles=3` — stub for smoke tests
+- `POST /analyze-url` — JSON: `{url, calorie_target, prioritize_protein, flags}`
+- `GET /analyze-url-test?url=...` — stub for smoke tests
+- `POST /analyze-pdf` — multipart with `menu_pdf`
+- `GET /openfoodfacts?q=...` — proxy to OFF
 
-## Robots.txt & Attribution
-- The app **checks robots.txt** before fetching any website or menu path.
-- If disallowed or blocked, the UI shows a friendly message and suggests uploading a PDF.
-- Footer attribution (required): “© OpenStreetMap contributors. Geocoding by Nominatim. Data via Overpass API. Packaged items from Open Food Facts.”
+## Robots & attribution
 
-## Security & Privacy
-- URL sanitizer blocks non-http(s) and private networks.
-- PDF size ≤ 10 MB, pages ≤ 20.
-- No accounts, PII, or cookies. UI presets stored in `localStorage` only.
+- We check robots.txt before fetching any site.
+- Footer attribution: OSM/Nominatim, Overpass, Open Food Facts.
 
-## Deterministic Rules
-See `nutrition_rules.py` for signal lists, calorie/protein estimators, and scoring math. Evidence is visible per pick.
+## OCR (optional)
 
-## Playbooks
-`data/cuisine_playbooks.json` and `data/chain_playbooks.json` seed safe fallbacks. Extend these via PRs. See `playbooks/CONTRIBUTING.md` for guidelines.
+- Install Tesseract on your host (system package) and uncomment `pytesseract` in requirements.
+- Toggle "Try OCR" in the UI when PDFs have images only.
 
-## Known limits
-- Heuristics are approximate, not medical advice.
-- Some restaurants use heavy JS or gated sites. Use the PDF upload in those cases.
-- Overpass/Nominatim have rate limits. The app backs off via sleeps and small result sets.
+## Security & privacy
 
-## License
-MIT (attribution to OSM and Open Food Facts required in UI).
+- No accounts; no persistent PII.
+- Simple URL sanitization (no file://, no private IPs).
+- PDF size/pages should be enforced by deployments; update as needed.
+
