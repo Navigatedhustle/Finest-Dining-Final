@@ -4,26 +4,46 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Fine Dining Coach – Free Menu Analyzer</title>
-  <link rel="stylesheet" href="/static/styles.css?v=20250921-8"/>
+  <link rel="stylesheet" href="/static/styles.css?v=20250921-11"/>
 </head>
 <body class="theme">
   <header class="hero">
     <div class="hero-inner">
       <div>
         <h1>Fine Dining Coach</h1>
-        <p class="subtitle">Free Menu Analyzer · Deterministic rules · No paid APIs</p>
+        <p class="subtitle">Healthy restaurant picks near you — fast &amp; free</p>
       </div>
       <div class="status-ribbon">
         <span id="statusDot" class="dot dot-warn"></span>
         <span id="statusText">Initializing…</span>
-        <button id="testNetworkBtn" class="btn-ghost ml8">Test network</button>
+        <button id="testNetworkBtn" class="btn-ghost ml8" type="button">Test network</button>
       </div>
     </div>
-    <nav class="hero-nav">
-      <span class="nav-pill on">Nominatim</span>
-      <span class="nav-pill on">Overpass</span>
-      <span class="nav-pill on">Open Food Facts</span>
-    </nav>
+
+    <!-- Simple instructions for full value -->
+    <div class="quickbar">
+      <div class="qstep">
+        <span class="qnum">1</span>
+        <div>
+          <div class="qtitle">Find by ZIP</div>
+          <div class="qdesc">Enter ZIP + radius, then <b>Search</b>.</div>
+        </div>
+      </div>
+      <div class="qstep">
+        <span class="qnum">2</span>
+        <div>
+          <div class="qtitle">Paste a menu link</div>
+          <div class="qdesc">Open a result’s website, copy the menu URL, click <b>Analyze URL</b>.</div>
+        </div>
+      </div>
+      <div class="qstep">
+        <span class="qnum">3</span>
+        <div>
+          <div class="qtitle">Pick &amp; order</div>
+          <div class="qdesc">Review top picks and copy the <i>server ask</i>.</div>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main class="container">
@@ -47,14 +67,12 @@
           <div class="row">
             <button id="searchBtn" type="submit" class="btn-primary">Search</button>
           </div>
-          <div class="help">
-            Enter your ZIP and press Search. We use OpenStreetMap to find nearby restaurants.
-          </div>
+          <div class="help">We’ll fetch nearby places; open a website and bring its menu link to Step 2.</div>
         </form>
       </div>
 
       <div class="card">
-        <div class="card-header">2 · Analyze Menus <span class="muted">Paste URL or upload PDF</span></div>
+        <div class="card-header">2 · Analyze Menus <span class="muted">Paste URL or upload PDF (below)</span></div>
         <form id="urlForm" class="grid1">
           <label class="field">
             <span class="label">Menu URL</span>
@@ -63,7 +81,7 @@
           <div class="row">
             <button id="analyzeUrlBtn" type="submit" class="btn-primary">Analyze URL</button>
           </div>
-          <div class="help">Copy a menu link, paste above, then click Analyze URL.</div>
+          <div class="help">Paste a public menu link and click Analyze URL.</div>
         </form>
         <hr class="sep"/>
         <div class="prefs">
@@ -81,7 +99,7 @@
     <section id="results" class="results"></section>
 
     <section class="panel">
-      <div class="panel-title">How to use</div>
+      <div class="panel-title">Quick refresher</div>
       <ol class="steps">
         <li>Enter your ZIP and press <strong>Search</strong>.</li>
         <li>Open a result’s website, copy the menu URL, paste it, then click <strong>Analyze URL</strong>.</li>
@@ -96,6 +114,6 @@
     <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>.
   </footer>
 
-  <script src="/static/app.js?v=20250921-8" defer></script>
+  <script src="/static/app.js?v=20250921-11" defer></script>
 </body>
 </html>

@@ -1,116 +1,179 @@
-(function(){
-  function ready(fn){ if(document.readyState!=='loading'){ fn(); } else { document.addEventListener('DOMContentLoaded', fn); } }
-  function $(id){ return document.getElementById(id); }
-  function setStatus(ok,msg){
-    var d=$('statusDot'), t=$('statusText');
-    if(d){ d.classList.remove('dot-ok','dot-warn'); d.style.background = ok ? '#22c55e' : '#ef4444'; }
-    if(t){ t.textContent = msg; }
-  }
-  function toast(msg){
-    var el = document.createElement('div');
-    el.textContent = msg;
-    el.style.position='fixed'; el.style.bottom='16px'; el.style.left='50%'; el.style.transform='translateX(-50%)';
-    el.style.padding='10px 14px'; el.style.background='#111'; el.style.color='#fff'; el.style.borderRadius='10px';
-    el.style.fontSize='12px'; el.style.opacity='0.95'; el.style.zIndex='9999';
-    document.body.appendChild(el); setTimeout(function(){ document.body.removeChild(el); }, 2200);
-  }
-  function addNet(method,url,status,ms){
-    console.log('[NET]', method, url, status, ms+'ms');
-  }
-  function postJSON(url, payload, onOk, onErr){
-    var t0 = Date.now();
-    fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
-      .then(function(r){ addNet('POST',url,r.status,Date.now()-t0); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-      .then(onOk).catch(function(e){ if(onErr) onErr(e); else { console.error(e); toast('Request failed'); setStatus(false, e.message||'Request failed'); } });
-  }
-  function chip(text, cls){
-    var s = document.createElement('span'); s.className='chip '+(cls||''); s.textContent = text; return s;
-  }
-  function renderResults(data){
-    var wrap = $('results'); if(!wrap) return;
-    wrap.innerHTML = '';
-    if(!data || !data.restaurants || !data.restaurants.length){ wrap.textContent='No results.'; return; }
-    for(var i=0;i<data.restaurants.length;i++){
-      var r = data.restaurants[i] || {};
-      var rest = document.createElement('div'); rest.className='rest';
-      var head = document.createElement('div'); head.className='rest-head';
-      var left = document.createElement('div');
-      var title = document.createElement('div'); title.className='rest-title'; title.textContent = r.name || 'Restaurant';
-      var sub = document.createElement('div'); sub.className='pills';
-      var badges = document.createElement('div'); badges.className='badges';
-      if(r.distance_mi!=null) badges.appendChild(chip(Number(r.distance_mi).toFixed(2)+' mi',''));
-      if(r.cuisine && r.cuisine.length) badges.appendChild(chip(r.cuisine.join(', '),''));
-      badges.appendChild(chip(r.source==='menu'?'Parsed from Menu':'Playbook','badge '+(r.source==='menu'?'menu':'playbook')));
-      sub.appendChild(badges);
-      left.appendChild(title); left.appendChild(sub);
-      head.appendChild(left);
-      var right = document.createElement('div'); right.className='actions';
-      if(r.website){ var a=document.createElement('a'); a.href=r.website; a.target='_blank'; a.rel='noopener'; a.className='btn-ghost'; a.textContent='Open website'; right.appendChild(a); }
-      head.appendChild(right);
-      rest.appendChild(head);
 
-      var content = document.createElement('div'); content.className='card-content';
-      if(r.picks && r.picks.length){
-        for(var j=0;j<Math.min(2,r.picks.length);j++){
-          var pk = r.picks[j] || {};
-          var card = document.createElement('div'); card.className='pick';
-          var t = document.createElement('div'); t.className='pick-title'; t.textContent = pk.item_name || 'Pick';
-          var row = document.createElement('div'); row.className='pick-row';
-          if(pk.est_kcal) row.appendChild(chip('~'+pk.est_kcal+' kcal','kcal'));
-          if(pk.est_protein_g) row.appendChild(chip(pk.est_protein_g+' g protein','protein'));
-          if(pk.confidence){
-            var conf = (pk.confidence||'').toLowerCase();
-            var cls = conf==='high'?'conf-high':(conf==='medium'?'conf-med':'conf-low');
-            row.appendChild(chip('confidence: '+conf,cls));
-          }
-          var why = document.createElement('div'); why.className='help'; why.textContent = pk.why_it_works || '';
-          var script = document.createElement('div'); script.className='pick-script'; script.textContent = pk.server_script || '';
-          var actions = document.createElement('div'); actions.className='actions';
-          var cpy = document.createElement('button'); cpy.className='btn-ghost'; cpy.textContent='Copy ask';
-          cpy.addEventListener('click', (function(text){ return function(){ navigator.clipboard.writeText(text||''); toast('Copied'); }; })(pk.server_script||''));
-          actions.appendChild(cpy);
-          if(pk.modifiers && pk.modifiers.length){ actions.appendChild(chip('mods: '+pk.modifiers.join(', '),'')); }
-          card.appendChild(t); card.appendChild(row); if(why.textContent) card.appendChild(why); card.appendChild(script); card.appendChild(actions);
-          content.appendChild(card);
-        }
-      }
-      rest.appendChild(content);
-      wrap.appendChild(rest);
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const statusDot = $("statusDot");
+  const statusText = $("statusText");
+  const resultsEl = $("results");
+
+  function setStatus(ok, msg) {
+    statusDot.classList.remove("dot-warn");
+    statusDot.classList.toggle("dot-ok", !!ok);
+    statusText.textContent = msg || (ok ? "Ready" : "Initializing…");
+  }
+
+  async function ping() {
+    try {
+      const r = await fetch("/_ping", { cache: "no-store" });
+      setStatus(r.ok, r.ok ? "Ready" : "Offline");
+    } catch {
+      setStatus(false, "Offline");
     }
-    window.scrollTo({top:wrap.offsetTop-10, behavior:'smooth'});
   }
 
-  function collectFlags(){ var flags=[]; var els=document.querySelectorAll('[name="flags"]'); for(var i=0;i<els.length;i++){ if(els[i].checked) flags.push(els[i].value); } return flags; }
-  function getCal(){ var el=$('calTarget'); var v=parseInt((el && el.value)||600,10); return isNaN(v)?600:v; }
-  function isProt(){ var el=$('prioProtein'); return !!(el && el.checked); }
+  function toast(msg) { alert(msg); }
 
-  function triggerSearch(zip, rmi){
-    var zipEl=$('zipInput'), radEl=$('radiusInput'), chainsEl=$('onlyChains');
-    zip = (zip || (zipEl && zipEl.value) || '').trim();
-    rmi = rmi || parseFloat((radEl && radEl.value)||'3');
-    if(!/^\d{5}$/.test(zip)){ setStatus(false,'Enter 5-digit ZIP'); toast('Enter 5-digit ZIP'); return; }
-    var payload = { zip: zip, radius_miles: isNaN(rmi)?3:rmi, only_chains: !!(chainsEl && chainsEl.checked), calorie_target: getCal(), flags: collectFlags(), prioritize_protein: isProt() };
-    setStatus(true,'Searching...');
-    postJSON('/nearby-by-zip', payload, function(data){ setStatus(true,'Done'); renderResults(data); });
+  function renderResults(payload) {
+    resultsEl.innerHTML = "";
+    if (!payload || !payload.restaurants || !payload.restaurants.length) {
+      resultsEl.innerHTML = `<div class="rest"><div>No results yet. Try a different ZIP/radius or paste a menu URL.</div></div>`;
+      return;
+    }
+
+    for (const r of payload.restaurants) {
+      const badgeKind = r.source === "menu" ? "menu" : "playbook";
+      const cuisine = (r.cuisine || []).join(", ");
+      const dist = (r.distance_mi != null) ? `${r.distance_mi.toFixed(2)} mi` : "";
+      const websiteBtn = r.website ? `<a class="btn-ghost" href="${r.website}" target="_blank" rel="noopener">Open website</a>` : "";
+
+      let picksHtml = "";
+      for (const p of (r.picks || []).slice(0, 3)) {
+        const confClass = p.confidence === "high" ? "conf-high" : p.confidence === "medium" ? "conf-med" : "conf-low";
+        const estK = p.est_kcal != null ? `<span class="chip kcal">${p.est_kcal} kcal</span>` : "";
+        const estP = p.est_protein_g != null ? `<span class="chip protein">${p.est_protein_g} g protein</span>` : "";
+        const conf = p.confidence ? `<span class="chip ${confClass}">${p.confidence}</span>` : "";
+        const mods = (p.modifiers || []).map(m => `<span class="chip">${m}</span>`).join(" ");
+        const script = p.server_script || "";
+
+        picksHtml += `
+          <div class="pick">
+            <div class="pick-title">${p.item_name || "Pick"}</div>
+            <div class="pick-row">${estK} ${estP} ${conf}</div>
+            ${p.why_it_works ? `<div class="help" style="margin-top:6px">${p.why_it_works}</div>` : ""}
+            ${mods ? `<div class="pick-row">${mods}</div>` : ""}
+            <div class="actions">
+              ${websiteBtn}
+              ${script ? `<button class="btn-ghost" data-copy="${script.replace(/"/g,'&quot;')}">Copy ask</button>` : ""}
+            </div>
+          </div>
+        `;
+      }
+
+      const html = `
+        <div class="rest">
+          <div class="rest-head">
+            <div class="rest-title">${r.name || "Restaurant"}</div>
+            <div class="badges">
+              ${dist ? `<span class="badge">${dist}</span>` : ""}
+              ${cuisine ? `<span class="badge">${cuisine}</span>` : ""}
+              <span class="badge ${badgeKind}">${r.source === "menu" ? "Parsed from Menu" : "Playbook"}</span>
+            </div>
+          </div>
+          <div class="card-content">${picksHtml || "<div class='help'>No picks yet.</div>"}</div>
+        </div>
+      `;
+      resultsEl.insertAdjacentHTML("beforeend", html);
+    }
+
+    resultsEl.querySelectorAll("[data-copy]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const text = btn.getAttribute("data-copy");
+        navigator.clipboard.writeText(text);
+        toast("Copied to clipboard");
+      });
+    });
   }
 
-  function triggerAnalyzeUrl(url){
-    var urlEl=$('menuUrl'); url = (url || (urlEl && urlEl.value) || '').trim();
-    if(!/^https?:\/\//i.test(url)){ setStatus(false,'Enter a valid http(s) URL'); toast('Enter a valid http(s) URL'); return; }
-    var payload = { url: url, params: { calorie_target: getCal(), flags: collectFlags(), prioritize_protein: isProt() } };
-    setStatus(true,'Analyzing URL...');
-    postJSON('/analyze-url', payload, function(data){ setStatus(true,'Done'); renderResults(data); });
+  async function postJSON(url, data) {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!r.ok) throw new Error(`${url} → ${r.status}`);
+    return await r.json();
   }
 
-  ready(function(){
-    try{
-      setStatus(true,'JS loaded — ready');
-      var sbtn=$('searchBtn'); if(sbtn){ sbtn.addEventListener('click', function(e){ e.preventDefault(); triggerSearch(); }); }
-      var abtn=$('analyzeUrlBtn'); if(abtn){ abtn.addEventListener('click', function(e){ e.preventDefault(); triggerAnalyzeUrl(); }); }
-      var zf=$('zipForm'); if(zf){ zf.addEventListener('submit', function(e){ e.preventDefault(); triggerSearch(); }); }
-      var uf=$('urlForm'); if(uf){ uf.addEventListener('submit', function(e){ e.preventDefault(); triggerAnalyzeUrl(); }); }
-      try{ var qs=new URLSearchParams(location.search); var pz=qs.get('zip'); var pr=qs.get('radius_miles'); if(pz && /^\d{5}$/.test(pz)){ triggerSearch(pz, parseFloat(pr||'3')); history.replaceState(null,'',location.pathname); } }catch(_){}
-      var test=$('testNetworkBtn'); if(test){ test.addEventListener('click', function(){ var t0=Date.now(); fetch('/_ping').then(function(r){ addNet('GET','/_ping',r.status,Date.now()-t0); return r.text();}).then(function(txt){ setStatus(true,'Network OK: '+txt); }).catch(function(){ setStatus(false,'Ping failed'); }); }); }
-    }catch(e){ console.error(e); setStatus(false,'JS error: '+(e.message||'unknown')); }
+  function getFlags() {
+    const flags = [];
+    document.querySelectorAll('input[name="flags"]:checked').forEach(i => flags.push(i.value));
+    return flags;
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    $("testNetworkBtn").addEventListener("click", ping);
+    await ping();
+
+    const params = new URLSearchParams(location.search);
+    if (params.get("zip")) {
+      $("zipInput").value = params.get("zip");
+      $("radiusInput").value = params.get("radius_miles") || "3";
+      try {
+        const payload = await postJSON("/nearby-by-zip", {
+          zip: $("zipInput").value,
+          radius_miles: parseFloat($("radiusInput").value || "3"),
+          calorie_target: parseInt($("calTarget").value || "600", 10),
+          prioritize_protein: $("prioProtein").checked,
+          flags: getFlags(),
+          only_chains: $("onlyChains").checked
+        });
+        renderResults(payload);
+        setStatus(true, "Ready");
+      } catch (e) {
+        setStatus(false, "Error");
+      }
+      history.replaceState({}, "", location.pathname);
+    }
+
+    $("zipForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const zip = $("zipInput").value.trim();
+      if (!/^\\d{5}$/.test(zip)) { alert("Please enter a 5-digit ZIP."); return; }
+
+      $("searchBtn").disabled = true;
+      $("searchBtn").textContent = "Searching…";
+      try {
+        const payload = await postJSON("/nearby-by-zip", {
+          zip,
+          radius_miles: parseFloat($("radiusInput").value || "3"),
+          calorie_target: parseInt($("calTarget").value || "600", 10),
+          prioritize_protein: $("prioProtein").checked,
+          flags: getFlags(),
+          only_chains: $("onlyChains").checked
+        });
+        renderResults(payload);
+        setStatus(true, "Ready");
+      } catch (err) {
+        setStatus(false, "Error");
+        alert("Search failed. See server logs.");
+      } finally {
+        $("searchBtn").disabled = false;
+        $("searchBtn").textContent = "Search";
+      }
+    });
+
+    $("urlForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = $("menuUrl").value.trim();
+      if (!/^https?:\\/\\//i.test(url)) { alert("Enter a valid http(s) menu URL."); return; }
+
+      $("analyzeUrlBtn").disabled = true;
+      $("analyzeUrlBtn").textContent = "Analyzing…";
+      try {
+        const payload = await postJSON("/analyze-url", {
+          url,
+          calorie_target: parseInt($("calTarget").value || "600", 10),
+          prioritize_protein: $("prioProtein").checked,
+          flags: getFlags()
+        });
+        renderResults(payload);
+        setStatus(true, "Ready");
+      } catch (err) {
+        setStatus(false, "Error");
+        alert("Analyze URL failed. Check robots.txt or try a PDF.");
+      } finally {
+        $("analyzeUrlBtn").disabled = false;
+        $("analyzeUrlBtn").textContent = "Analyze URL";
+      }
+    });
   });
 })();
