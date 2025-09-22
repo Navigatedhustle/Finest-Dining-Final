@@ -1,0 +1,20 @@
+<iframe
+  src="https://finest-dining-final.onrender.com/?embed=1&v={{DATE_NOW}}"
+  style="width:100%;min-height:1400px;border:0;border-radius:12px;overflow:hidden"
+  loading="lazy"
+  referrerpolicy="no-referrer"
+  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+  allow="clipboard-write; fullscreen"
+></iframe>
+<script>
+  (function(){
+    const ifr=document.currentScript.previousElementSibling;
+    if (ifr && ifr.tagName==='IFRAME') {
+      ifr.src = ifr.src.replace('{{DATE_NOW}}', Date.now());
+      window.addEventListener("message", (e)=>{
+        if(!e.data || e.data.type!=="fdc-height") return;
+        ifr.style.minHeight = Math.max(900, +e.data.height || 0) + "px";
+      });
+    }
+  })();
+</script>

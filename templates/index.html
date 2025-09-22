@@ -1,109 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="h-full">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Fine Dining Coach – Free Menu Analyzer</title>
-  <link rel="stylesheet" href="/static/styles.css?v=20250922-1"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fine Dining Coach — Free Menu Analyzer</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="/static/styles.css?v=20250922b">
 </head>
-<body class="theme">
-  <header class="hero">
-    <div class="hero-inner">
-      <div>
-        <h1>Fine Dining Coach</h1>
-        <p class="subtitle">Healthy restaurant picks near you — free, no logins</p>
-      </div>
-      <div class="status-ribbon">
-        <span id="statusDot" class="dot dot-warn"></span>
-        <span id="statusText">Initializing…</span>
-        <button id="testNetworkBtn" class="btn-ghost ml8" type="button">Test network</button>
-      </div>
-    </div>
-    <div class="quickbar">
-      <div class="qstep">
-        <span class="qnum">1</span>
-        <div><div class="qtitle">Find by ZIP</div><div class="qdesc">Enter ZIP + radius, press <b>Search</b>.</div></div>
-      </div>
-      <div class="qstep">
-        <span class="qnum">2</span>
-        <div><div class="qtitle">Analyze menus</div><div class="qdesc">Open a result's website, copy the menu URL, paste &amp; <b>Analyze URL</b>.</div></div>
-      </div>
-      <div class="qstep">
-        <span class="qnum">3</span>
-        <div><div class="qtitle">Order smart</div><div class="qdesc">Review picks &amp; tap <i>Copy ask</i> for the server.</div></div>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="cards two-col">
-      <div class="card">
-        <div class="card-header">1 · Find by ZIP <span class="muted">Nearby restaurants</span></div>
-        <form id="zipForm" class="grid2">
-          <label class="field">
-            <span class="label">ZIP code</span>
-            <input id="zipInput" name="zip" inputmode="numeric" maxlength="5" pattern="\d{5}" placeholder="e.g., 87124" class="input"/>
-          </label>
-          <label class="field">
-            <span class="label">Radius (miles)</span>
-            <input id="radiusInput" name="radius_miles" type="number" step="0.1" min="0.5" max="25" value="3" class="input"/>
-          </label>
-          <label class="check"><input type="checkbox" name="only_chains" id="onlyChains"/><span>Only show chains</span></label>
-          <div></div>
-          <div class="row"><button id="searchBtn" type="submit" class="btn-primary">Search</button></div>
-          <div class="help">Open a result’s site after search and bring its menu link into Step 2.</div>
-        </form>
-      </div>
-
-      <div class="card">
-        <div class="card-header">2 · Analyze Menus <span class="muted">Paste URL or upload a PDF</span></div>
-        <form id="urlForm" class="grid1">
-          <label class="field">
-            <span class="label">Menu URL</span>
-            <input id="menuUrl" name="menu_url" type="url" placeholder="https://example-restaurant.com/menu" class="input"/>
-          </label>
-          <div class="row"><button id="analyzeUrlBtn" type="submit" class="btn-primary">Analyze URL</button></div>
-          <div class="help">Respects robots.txt. If blocked, download the menu as PDF and upload below.</div>
-        </form>
-        <hr class="sep"/>
-        <form id="pdfForm" class="grid1" enctype="multipart/form-data">
-          <label class="field">
-            <span class="label">Menu PDF</span>
-            <input id="menuPdf" name="menu_pdf" type="file" accept="application/pdf" class="input"/>
-          </label>
-          <label class="check"><input type="checkbox" id="useOcr"/><span>Try OCR if text isn’t found</span></label>
-          <div class="row"><button id="analyzePdfBtn" type="submit" class="btn-primary">Analyze PDF</button></div>
-        </form>
-        <hr class="sep"/>
-        <div class="prefs">
-          <div class="pref"><span class="label">Calorie Target</span><input type="number" name="calorie_target" id="calTarget" value="600" min="300" max="1200" step="10" class="input small"/></div>
-          <label class="check"><input type="checkbox" name="prioritize_protein" id="prioProtein" checked/><span>Prioritize protein</span></label>
-          <label class="check"><input type="checkbox" name="flags" value="low_carb"/><span>Low-carb</span></label>
-          <label class="check"><input type="checkbox" name="flags" value="no_fried"/><span>No fried</span></label>
-          <label class="check"><input type="checkbox" name="flags" value="gluten_mindful"/><span>Gluten mindful</span></label>
-          <label class="check"><input type="checkbox" name="flags" value="dairy_mindful"/><span>Dairy mindful</span></label>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50">
+  <div class="max-w-6xl mx-auto px-4 py-6">
+    <header class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center text-white font-bold shadow">F</div>
+        <div>
+          <h1 class="text-xl font-semibold">Fine Dining Coach</h1>
+          <p class="text-sm opacity-80">Free Menu Analyzer</p>
         </div>
       </div>
+      <div class="flex items-center gap-3">
+        <span class="status-badge" data-status>Initializing…</span>
+        <button id="darkToggle" class="btn-secondary">Dark</button>
+      </div>
+    </header>
+
+    <section class="mb-6">
+      <div class="card">
+        <h2 class="card-title">How to use</h2>
+        <ol class="list-decimal ml-5 space-y-1 text-sm md:text-base">
+          <li><b>Find</b>: Enter your ZIP + radius → click <b>Search</b>.</li>
+          <li><b>Analyze</b>: Paste a menu URL (or upload a PDF) → click <b>Analyze</b>.</li>
+          <li><b>Order</b>: Pick a card and tap <b>Copy Ask</b> for the server script.</li>
+        </ol>
+      </div>
     </section>
 
-    <section id="results" class="results"></section>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section class="card">
+        <h3 class="card-title">1) Find by ZIP</h3>
+        <form id="zipForm" class="grid grid-cols-12 gap-3 items-end">
+          <div class="col-span-6">
+            <label class="label">ZIP code</label>
+            <input id="zip" type="text" inputmode="numeric" pattern="\d{5}" placeholder="e.g., 80202" class="input" required>
+          </div>
+          <div class="col-span-3">
+            <label class="label">Radius (mi)</label>
+            <input id="radius" type="number" min="1" max="15" step="0.1" value="3" class="input">
+          </div>
+          <div class="col-span-3">
+            <label class="label invisible">Search</label>
+            <button id="zipSearchBtn" class="btn-primary w-full">Search</button>
+          </div>
 
-    <section class="panel">
-      <div class="panel-title">Tips</div>
-      <ol class="steps">
-        <li>Use precise ZIP + smaller radius for faster results.</li>
-        <li>Menu pages with heavy JavaScript may be blocked; use PDF instead.</li>
-        <li>Attach a packaged side via Open Food Facts in the results.</li>
-      </ol>
+          <div class="col-span-12 grid grid-cols-12 gap-3">
+            <div class="col-span-6">
+              <label class="label">Calorie Target</label>
+              <input id="calTarget" type="number" value="600" min="300" max="1200" step="10" class="input">
+            </div>
+            <div class="col-span-6 flex items-center gap-4 pt-7">
+              <label class="inline-flex items-center gap-2 text-sm">
+                <input id="pp" type="checkbox" class="checkbox" checked>
+                <span>Prioritize protein</span>
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm">
+                <input id="flag_lowcarb" type="checkbox" class="checkbox">
+                <span>Low-carb</span>
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm">
+                <input id="flag_nofried" type="checkbox" class="checkbox">
+                <span>No fried</span>
+              </label>
+            </div>
+          </div>
+        </form>
+        <div id="zipResults" class="mt-4"></div>
+      </section>
+
+      <section class="card">
+        <h3 class="card-title">2) Analyze Menus</h3>
+        <form id="urlForm" class="space-y-3">
+          <div>
+            <label class="label">Menu URL</label>
+            <input id="menu_url" type="url" placeholder="https://example-restaurant.com/menu" class="input">
+          </div>
+          <div class="flex gap-3">
+            <button id="analyzeUrlBtn" class="btn-primary">Analyze URL</button>
+            <div class="ml-auto flex items-center gap-2">
+              <input id="offQuery" type="text" class="input w-48" placeholder="e.g., keto tortilla">
+              <button id="offBtn" class="btn-secondary">Find packaged item</button>
+            </div>
+          </div>
+        </form>
+
+        <form id="pdfForm" class="grid grid-cols-12 gap-3 mt-5">
+          <div class="col-span-9">
+            <label class="label">Menu PDF</label>
+            <input id="menu_pdf" type="file" accept="application/pdf" class="input">
+          </div>
+          <div class="col-span-3">
+            <label class="label invisible">Analyze PDF</label>
+            <button id="analyzePdfBtn" class="btn-primary w-full">Analyze PDF</button>
+          </div>
+          <label class="inline-flex items-center gap-2 col-span-12">
+            <input id="use_ocr" type="checkbox" class="checkbox">
+            <span>Enable OCR for scanned PDFs</span>
+          </label>
+        </form>
+
+        <div id="analyzeResults" class="mt-4"></div>
+      </section>
+    </div>
+
+    <section class="mt-6">
+      <div id="combinedResults"></div>
     </section>
-  </main>
 
-  <footer class="footer">
-    © OpenStreetMap contributors. Geocoding by <a href="https://nominatim.openstreetmap.org" target="_blank" rel="noopener">Nominatim</a>.
-    Data via <a href="https://overpass-api.de" target="_blank" rel="noopener">Overpass API</a>. Packaged items from
-    <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>.
-  </footer>
+    <footer class="mt-10 text-xs opacity-75">
+      © <span id="yr"></span> Fine Dining Coach.
+      <span class="ml-2">Use: ZIP → pick → Copy Ask. Sauce on side. Half starch. Extra veg.</span>
+    </footer>
+  </div>
 
-  <script src="/static/app.js?v=20250922-1" defer></script>
+  <script src="/static/boot.js?v=20250922b"></script>
+  <script src="/static/app.js?v=20250922b"></script>
+  <script>
+    fetch("/_ping",{cache:"no-store"}).then(()=>{
+      const s=document.querySelector("[data-status]"); if(s){ s.dataset.status="ok"; s.textContent="Ready"; }
+    }).catch(()=>{});
+    document.getElementById("yr").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
